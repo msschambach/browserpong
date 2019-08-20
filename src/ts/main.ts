@@ -1,17 +1,21 @@
-let canvas;
-let canvasContext;
-let PongBall;
-let LeftPaddle;
-let RightPaddle;
+import Paddle from './components/Paddle';
+import Ball from './components/Ball';
 
-const PADDLE_HEIGHT = 100;
-const PADDLE_THICKNESS = 10;
+let canvas: HTMLCanvasElement;
+let canvasContext: CanvasRenderingContext2D;
+let PongBall: Ball;
+let LeftPaddle: Paddle;
+let RightPaddle: Paddle;
 
-let player1Score = 0;
-let player2Score = 0;
+const PADDLE_HEIGHT: number = 100;
+const PADDLE_THICKNESS: number = 10;
+const FRAMES_PER_SECOND = 60;
+
+let humanPlayerScore: number = 0;
+let aiPlayerScore: number = 0;
 
 
-function fillRectangle(left, top, width, height, style) {
+function fillRectangle(left: number, top: number, width: number, height: number, style: string) {
     canvasContext.strokeStyle = style;
     canvasContext.fillStyle = style;
     canvasContext.fillRect(left, top, width, height);
@@ -46,13 +50,15 @@ function draw() {
     PongBall.animate();
 
     // Write Scores
-    canvasContext.fillText(player1Score, 100, 100);
-    canvasContext.fillText(player2Score, canvas.width - 100, 100);
+    canvasContext.font = "30px Barriecito";
+    canvasContext.fillText(String(humanPlayerScore), 100, 100);
+    canvasContext.fillText(String(aiPlayerScore), canvas.width - 100, 100);
+    PongBall.debugInfo(canvasContext);
 }
 
 
 window.onload = () => {
-    canvas = document.getElementById('gameCanvas');
+    canvas = <HTMLCanvasElement>document.getElementById('gameCanvas');
     canvasContext = canvas.getContext('2d');
 
     PongBall = new Ball(canvas, canvasContext, 20, 20, 8);
@@ -68,10 +74,10 @@ window.onload = () => {
             ball.yDelta = (ball.yPosition - (RightPaddle.yPosition + RightPaddle.height / 2)) * 0.35;
         } else if (ball.touchesLeftSideOfWindow) {
             ball.reset();
-            player2Score++;
+            aiPlayerScore++;
         } else if (ball.touchesRightSideOfWindow) {
             ball.reset();
-            player1Score++;
+            humanPlayerScore++;
         }
     }
 
@@ -83,12 +89,16 @@ window.onload = () => {
 
         if (ball.yDelta > 5 || ball.yDelta < -5) {
             /* If ball is going up or down with a 
-            speed of around 5 units */
+            speed of around 5 units and above */
             paddleShift = 17;
-        } else if (ball.yDelta <= 5 || ball.yDelta > -5) {
+        } else if (ball.yDelta <= 5 || ball.yDelta >= -5) {
             /* If ball is going up or down with a 
             speed of less than 5 units */
-            paddleShift = 3;
+            paddleShift = 5;
+        } else if (ball.yDelta < 1) {
+            paddleShift = ball.yDelta * 10;
+        } else {
+            paddleShift = ball.yDelta;
         }
 
 
@@ -105,10 +115,9 @@ window.onload = () => {
     PongBall.subscribe(ballObserver);
     PongBall.subscribe(rightPaddleController);
 
-    const FRAMES_PER_SECOND = 30;
-    setInterval(draw, 1000 / FRAMES_PER_SECOND);
-
     canvas.addEventListener('mousemove', (event) => {
         LeftPaddle.move(locateCursor(event));
     });
+
+    setInterval(draw, 1000 / FRAMES_PER_SECOND);
 }

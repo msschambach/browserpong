@@ -1,35 +1,29 @@
-class GameObject {
-    constructor() {
-        this.oberverHandlers = [];
-    }
+import { GameObject } from './core';
 
-    subscribe(fn) {
-        if (typeof fn == 'function') {
-            this.oberverHandlers.push(fn);
-        }
-    }
+export default class Ball extends GameObject {
 
-    unsubscribe(fn) {
-        if (typeof fn == 'function') {
-            this.oberverHandlers = this.oberverHandlers.filter(
-                function (item) {
-                    if (item !== fn) {
-                        return item;
-                    }
-                }
-            );
-        }
-    }
+    canvas: HTMLCanvasElement;
+    context: CanvasRenderingContext2D;
+    xPosition: number;
+    yPosition: number;
+    radius: number;
+    strokeStyle: string;
+    fillStyle: string;
+    xDelta: number;
+    yDelta: number;
+    touchesLeftSideOfWindow: boolean;
+    touchesRightSideOfWindow: boolean;
+    touchesTopSideOfWindow: boolean;
+    touchesBottomSideOfWindow: boolean;
 
-    updateObservers(scope) {
-        this.oberverHandlers.forEach(fn => {
-            fn(scope);
-        });
-    }
-}
 
-class Ball extends GameObject {
-    constructor(canvas, context, xPosition, yPosition, speed) {
+    constructor(
+        canvas: HTMLCanvasElement,
+        context: CanvasRenderingContext2D,
+        xPosition: number,
+        yPosition: number,
+        speed: number
+    ) {
         super();
         this.canvas = canvas;
         this.context = context;
@@ -52,6 +46,7 @@ class Ball extends GameObject {
     reset() {
         this.xPosition = this.canvas.width / 2;
         this.yPosition = this.canvas.height / 2;
+        this.yDelta = 0;
     }
 
     draw() {
@@ -93,37 +88,14 @@ class Ball extends GameObject {
         this.move();
         this.draw();
     }
-}
 
-class Paddle extends GameObject {
-    constructor(canvas, context, xPosition, yPosition, width, height) {
-        super();
-        this.canvas = canvas;
-        this.context = context;
-        this.xPosition = xPosition;
-        this.yPosition = yPosition;
-        this.strokeStyle = '#ffffff';
-        this.fillStyle = '#ffffff';
-        this.width = width;
-        this.height = height;
-    }
-
-
-    draw() {
-        this.context.strokeStyle = this.strokeStyle;
-        this.context.fillStyle = this.fillStyle;
-        this.context.fillRect(this.xPosition, this.yPosition, this.width, this.height);
-    }
-
-    move(cursorPosition = {}) {
-        this.yPosition = (cursorPosition.y - (this.height / 2)) || this.yPosition;
-
-        this.updateObservers(this);
-    }
-
-
-    animate() {
-        this.move();
-        this.draw();
+    debugInfo(context: CanvasRenderingContext2D) {
+        const TEXT_X_POSITION = (context.canvas.width / 2) - 50;
+        const TEXT_Y_START_POSITION = context.canvas.height - 100;
+        context.font = "10px Helvetica";
+        context.fillText(`Ball xPos: ${this.xPosition}`, TEXT_X_POSITION, TEXT_Y_START_POSITION);
+        context.fillText(`Ball yPos: ${this.yPosition}`, TEXT_X_POSITION, TEXT_Y_START_POSITION + 15);
+        context.fillText(`Ball xDelta: ${this.xDelta}`, TEXT_X_POSITION, TEXT_Y_START_POSITION + 30);
+        context.fillText(`Ball yDelta: ${this.yDelta}`, TEXT_X_POSITION, TEXT_Y_START_POSITION + 45);
     }
 }
