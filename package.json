@@ -17,9 +17,9 @@
   },
   "homepage": "https://github.com/msschambach/jspong#readme",
   "dependencies": {
-    "ts-loader": "^6.0.4",
+    "ts-loader": "^9.4.2",
     "typescript": "^3.5.3",
-    "webpack": "^4.39.2",
-    "webpack-cli": "^3.3.7"
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.1"
   }
 }
